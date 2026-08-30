@@ -64,7 +64,11 @@ await using (var scope = app.Services.CreateAsyncScope())
     await DbSeeder.SeedAsync(dbContext);
 }
 
-if (app.Environment.IsDevelopment())
+var swaggerEnabled =
+    app.Environment.IsDevelopment()
+    || builder.Configuration.GetValue<bool>("Swagger:Enabled");
+
+if (swaggerEnabled)
 {
     app.UseSwagger();
     app.UseSwaggerUI();
