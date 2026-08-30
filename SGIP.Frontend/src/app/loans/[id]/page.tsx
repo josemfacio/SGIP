@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { PageHeading } from "@/components/ui/PageHeading";
 import { ErrorMessage, LoadingState } from "@/components/ui/Feedback";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -18,8 +18,7 @@ export default function LoanDetailPage() {
     [schedule, setSchedule] = useState<PaymentSchedule[]>([]),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false);
-  const load = async () => {
-    setError("");
+  const load = useCallback(async () => {
     try {
       const [data, rows] = await Promise.all([
         loanService.getById(id),
@@ -30,9 +29,24 @@ export default function LoanDetailPage() {
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "No se pudo cargar el préstamo");
     }
-  };
+  }, [id]);
   useEffect(() => {
-    void load();
+    let active = true;
+
+    void Promise.all([loanService.getById(id), loanService.getSchedule(id)])
+      .then(([data, rows]) => {
+        if (!active) return;
+        setLoan(data);
+        setSchedule(rows);
+      })
+      .catch((reason: unknown) => {
+        if (!active) return;
+        setError(reason instanceof Error ? reason.message : "No se pudo cargar el préstamo");
+      });
+
+    return () => {
+      active = false;
+    };
   }, [id]);
   const decide = async (action: "approve" | "reject") => {
     setBusy(true);
@@ -43,7 +57,16 @@ export default function LoanDetailPage() {
       setBusy(false);
     }
   };
-  if (error) return <ErrorMessage message={error} onRetry={() => void load()} />;
+  if (error)
+    return (
+      <ErrorMessage
+        message={error}
+        onRetry={() => {
+          setError("");
+          void load();
+        }}
+      />
+    );
   if (!loan) return <LoadingState />;
   return (
     <div className="grid gap-5">

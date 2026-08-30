@@ -8,6 +8,22 @@ using SGIP.Infrastructure.Repositories.Implementations;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var defaultFrontendOrigins = new[]
+{
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "http://localhost:5173"
+};
+
+var configuredFrontendOrigins = builder.Configuration["CORS_ORIGINS"]?
+    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+    ?? [];
+
+var frontendOrigins = defaultFrontendOrigins
+    .Concat(configuredFrontendOrigins)
+    .Distinct(StringComparer.OrdinalIgnoreCase)
+    .ToArray();
+
 builder.Services.AddControllers();
 
 builder.Services.AddCors(options =>
@@ -15,11 +31,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("Frontend", policy =>
     {
         policy
-            .WithOrigins(
-                "http://localhost:3000",
-                "http://localhost:3001",
-                "http://localhost:5173"
-            )
+            .WithOrigins(frontendOrigins)
             .AllowAnyHeader()
             .AllowAnyMethod();
     });

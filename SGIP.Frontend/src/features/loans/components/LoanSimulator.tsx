@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { formatCurrency, formatPercent } from "@/lib/formatters";
@@ -27,20 +27,20 @@ export function LoanSimulator() {
     defaultValues: { amount: 10000, term: 12, loanType: 1 },
   });
   const values = watch();
-  const calculate = async (data: LoanFormValues) => {
+  const calculate = useCallback(async (data: LoanFormValues) => {
     setApiError("");
     try {
       setResult(await loanService.simulate({ ...data, loanType: data.loanType as LoanType }));
     } catch (error) {
       setApiError(error instanceof Error ? error.message : "No se pudo simular");
     }
-  };
+  }, []);
   useEffect(() => {
     const timer = setTimeout(() => {
       void handleSubmit(calculate)();
     }, 450);
     return () => clearTimeout(timer);
-  }, [values.amount, values.term, values.loanType]);
+  }, [calculate, handleSubmit, values.amount, values.loanType, values.term]);
   const requestLoan = async () => {
     if (!result) return;
     setSaving(true);
