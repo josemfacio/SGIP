@@ -1,0 +1,67 @@
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnPaste": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "files.autoSave": "off",
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "typescript.disableAutomaticTypeAcquisition": true,
+  "typescript.tsserver.maxTsServerMemory": 3072,
+  "typescript.tsdk": "SGIP.Frontend/node_modules/typescript/lib",
+  "eslint.workingDirectories": [
+    "./SGIP.Frontend"
+  ],
+  "eslint.useFlatConfig": true,
+  "files.watcherExclude": {
+    "**/.git/**": true,
+    "**/.vs/**": true,
+    "**/.next/**": true,
+    "**/.wrangler/**": true,
+    "**/node_modules/**": true,
+    "**/.pnpm-store/**": true,
+    "**/.cleanup-backup/**": true,
+    "**/bin/**": true,
+    "**/obj/**": true
+  },
+  "search.exclude": {
+    "**/.git": true,
+    "**/.vs": true,
+    "**/.next": true,
+    "**/.wrangler": true,
+    "**/node_modules": true,
+    "**/.pnpm-store": true,
+    "**/.cleanup-backup": true,
+    "**/bin": true,
+    "**/obj": true
+  },
+  "files.exclude": {
+    "**/.next": true,
+    "**/.wrangler": true,
+    "**/node_modules": true,
+    "**/.pnpm-store": true,
+    "**/.cleanup-backup": true,
+    "**/bin": true,
+    "**/obj": true
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
+}

@@ -1,0 +1,50 @@
+# IDE and local tooling
+.vs/
+.vscode/*.log
+.agents/
+.cleanup-backup/
+*.user
+*.suo
+*.legacy.txt
+
+# .NET build output
+**/bin/
+**/obj/
+TestResults/
+**/TestResults/
+coverage/
+**/coverage/
+*.coverage
+*.coveragexml
+
+# Local .NET configuration
+**/appsettings.Development.json
+**/appsettings.Local.json
+
+# Frontend dependencies and builds
+**/node_modules/
+**/.next/
+**/.wrangler/
+**/.pnpm-store/
+**/out/
+**/dist/
+**/*.tsbuildinfo
+**/next-env.d.ts
+
+# Environment files
+**/.env
+**/.env.local
+**/.env.development.local
+**/.env.test.local
+**/.env.production.local
+!**/.env.example
+
+# Temporary files and generated evidence
+tmp/
+*.tmp
+*.log
+
+# Operating system
+.DS_Store
+Thumbs.db
+Desktop.ini

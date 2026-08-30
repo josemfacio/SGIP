@@ -1,0 +1,6 @@
+@SGIP.Api_HostAddress = http://localhost:5190
+
+GET {{SGIP.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
