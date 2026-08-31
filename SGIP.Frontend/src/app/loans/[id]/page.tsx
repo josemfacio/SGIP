@@ -9,11 +9,14 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { LOAN_STATUSES, LOAN_TYPES } from "@/constants/loan.constants";
 import { PaymentScheduleTable } from "@/features/loans/components/PaymentScheduleTable";
 import { loanService } from "@/features/loans/services/loan.service";
+import { loanUpdated } from "@/features/loans/store/loan.slice";
 import type { Loan, PaymentSchedule } from "@/features/loans/types/loan.types";
 import { formatCurrency, formatDate, formatPercent } from "@/lib/formatters";
+import { useAppDispatch } from "@/store/hooks";
 
 export default function LoanDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const dispatch = useAppDispatch();
   const [loan, setLoan] = useState<Loan | null>(null),
     [schedule, setSchedule] = useState<PaymentSchedule[]>([]),
     [error, setError] = useState(""),
@@ -51,8 +54,9 @@ export default function LoanDetailPage() {
   const decide = async (action: "approve" | "reject") => {
     setBusy(true);
     try {
-      await loanService[action](id);
-      await load();
+      const updatedLoan = await loanService[action](id);
+      setLoan(updatedLoan);
+      dispatch(loanUpdated(updatedLoan));
     } finally {
       setBusy(false);
     }

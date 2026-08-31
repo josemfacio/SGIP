@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import { loanService } from "../services/loan.service";
 import type { Loan } from "../types/loan.types";
 
@@ -14,7 +14,17 @@ export const fetchLoans = createAsyncThunk("loans/fetchAll", loanService.getAll)
 const slice = createSlice({
   name: "loans",
   initialState,
-  reducers: {},
+  reducers: {
+    loanUpdated: (state, action: PayloadAction<Loan>) => {
+      const index = state.items.findIndex((loan) => loan.id === action.payload.id);
+
+      if (index >= 0) {
+        state.items[index] = action.payload;
+      } else {
+        state.items.unshift(action.payload);
+      }
+    },
+  },
   extraReducers: (builder) =>
     builder
       .addCase(fetchLoans.pending, (state) => {
@@ -32,4 +42,6 @@ const slice = createSlice({
         state.error = action.error.message || "No se pudieron cargar los préstamos";
       }),
 });
+
+export const { loanUpdated } = slice.actions;
 export default slice.reducer;
