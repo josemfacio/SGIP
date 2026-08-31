@@ -62,6 +62,18 @@ export function LoanList({ compact = false, statusFilter }: LoanListProps) {
                 </button>
               ))}
             </div>
+            {(query || status) && (
+              <button
+                type="button"
+                className="rounded-lg px-3 py-2 text-xs font-bold text-blue-600 hover:bg-blue-50"
+                onClick={() => {
+                  setQuery("");
+                  setStatus(0);
+                }}
+              >
+                Limpiar
+              </button>
+            )}
           </div>
           <span className="text-[11px] text-slate-400">{loans.length} resultados</span>
         </div>
