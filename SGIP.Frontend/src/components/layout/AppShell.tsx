@@ -13,6 +13,16 @@ const links = [
   { href: "/users", label: "Usuarios", icon: "U" },
 ];
 
+function getPageTitle(pathname: string) {
+  if (pathname === "/") return "Resumen";
+  if (pathname === "/loans/simulate") return "Simulador de préstamo";
+  if (pathname.startsWith("/loans/")) return "Detalle del préstamo";
+  if (pathname === "/loans") return "Préstamos";
+  if (pathname === "/transactions") return "Transacciones";
+  if (pathname === "/users") return "Usuarios";
+  return "SGIP";
+}
+
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { activeUser } = useUsers();
@@ -81,13 +91,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           >
             ☰
           </button>
-          <div className="hidden w-full max-w-sm items-center gap-2 rounded-lg border border-slate-100 bg-slate-50 px-3 text-slate-400 sm:flex">
-            <span className="text-lg">⌕</span>
-            <input
-              className="h-10 w-full bg-transparent text-sm outline-none"
-              aria-label="Buscar"
-              placeholder="Buscar préstamos o transacciones..."
-            />
+          <div className="min-w-0">
+            <p className="text-[10px] font-extrabold tracking-[0.16em] text-slate-400">SGIP</p>
+            <h1 className="truncate text-base font-extrabold text-slate-800">
+              {getPageTitle(pathname)}
+            </h1>
           </div>
           <div className="ml-auto flex items-center gap-5">
             <span className="grid size-9 place-items-center rounded-full bg-blue-100 text-xs font-extrabold text-blue-700">

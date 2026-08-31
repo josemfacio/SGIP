@@ -6,6 +6,8 @@ import { useLoans } from "@/features/loans/hooks/useLoans";
 import { useTransactions } from "@/features/transactions/hooks/useTransactions";
 import { formatCurrency } from "@/lib/formatters";
 import { PageHeading } from "@/components/ui/PageHeading";
+import { useState } from "react";
+import { useUsers } from "@/features/users/context/UserProvider";
 
 const toneClasses: Record<string, string> = {
   blue: "bg-blue-50 text-blue-600",
@@ -14,6 +16,8 @@ const toneClasses: Record<string, string> = {
   violet: "bg-violet-50 text-violet-600",
 };
 export default function HomePage() {
+  const [loanFilter, setLoanFilter] = useState<"all" | "active" | "pending">("all");
+  const { activeUser } = useUsers();
   const { items: loans, loading } = useLoans();
   const { items: transactions } = useTransactions();
   const active = loans.filter((loan) => loan.status === 2 || loan.status === 4);
@@ -23,7 +27,7 @@ export default function HomePage() {
     <>
       <PageHeading
         eyebrow="PANEL PRINCIPAL"
-        title="Buenos días, José"
+        title={`Buenos días${activeUser ? `, ${activeUser.name.split(" ")[0]}` : ""}`}
         description="Aquí tienes el panorama financiero de hoy."
       >
         <Link
@@ -40,6 +44,8 @@ export default function HomePage() {
           note={`${active.length} préstamos vigentes`}
           tone="blue"
           loading={loading}
+          selected={loanFilter === "active"}
+          onClick={() => setLoanFilter("active")}
         />
         <Stat
           label="Solicitudes pendientes"
@@ -47,6 +53,8 @@ export default function HomePage() {
           note={pending.length ? "Requieren revisión" : "Todo al día"}
           tone="amber"
           loading={loading}
+          selected={loanFilter === "pending"}
+          onClick={() => setLoanFilter("pending")}
         />
         <Stat
           label="Pagos recibidos"
@@ -61,18 +69,29 @@ export default function HomePage() {
           note={`${loans.length} solicitudes registradas`}
           tone="violet"
           loading={loading}
+          selected={loanFilter === "all"}
+          onClick={() => setLoanFilter("all")}
         />
       </div>
       <div className="flex items-center justify-between px-1 pb-3">
         <div>
-          <h3 className="text-sm font-bold text-slate-900">Solicitudes recientes</h3>
+          <h3 className="text-sm font-bold text-slate-900">
+            {loanFilter === "active"
+              ? "Cartera activa"
+              : loanFilter === "pending"
+                ? "Solicitudes pendientes"
+                : "Solicitudes recientes"}
+          </h3>
           <p className="text-xs text-slate-400">Últimos préstamos registrados</p>
         </div>
         <Link className="text-xs font-bold text-blue-600 hover:text-blue-700" href="/loans">
           Ver todos →
         </Link>
       </div>
-      <LoanList compact />
+      <LoanList
+        compact
+        statusFilter={loanFilter === "active" ? [2, 4] : loanFilter === "pending" ? [1] : undefined}
+      />
     </>
   );
 }
@@ -82,15 +101,27 @@ function Stat({
   note,
   tone,
   loading,
+  selected = false,
+  onClick,
 }: {
   label: string;
   value: string;
   note: string;
   tone: string;
   loading: boolean;
+  selected?: boolean;
+  onClick?: () => void;
 }) {
   return (
-    <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <article
+      className={`rounded-2xl border bg-white p-5 shadow-sm transition ${onClick ? "cursor-pointer hover:-translate-y-0.5 hover:shadow-md" : ""} ${selected ? "border-blue-400 ring-4 ring-blue-100" : "border-slate-200"}`}
+      onClick={onClick}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={(event) => {
+        if (onClick && (event.key === "Enter" || event.key === " ")) onClick();
+      }}
+    >
       <div
         className={`float-right grid size-10 place-items-center rounded-xl ${toneClasses[tone]}`}
       >
