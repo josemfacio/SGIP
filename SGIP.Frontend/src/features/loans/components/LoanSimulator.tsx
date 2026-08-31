@@ -5,8 +5,10 @@ import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { formatCurrency, formatPercent } from "@/lib/formatters";
+import { useAppDispatch } from "@/store/hooks";
 import { loanSchema, type LoanFormValues } from "../schemas/loan.schema";
 import { loanService } from "../services/loan.service";
+import { loanUpdated } from "../store/loan.slice";
 import type { LoanSimulation, LoanType } from "../types/loan.types";
 import { PaymentScheduleTable } from "./PaymentScheduleTable";
 
@@ -14,6 +16,7 @@ const inputClass =
   "w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100";
 export function LoanSimulator() {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const [result, setResult] = useState<LoanSimulation | null>(null);
   const [apiError, setApiError] = useState("");
   const [saving, setSaving] = useState(false);
@@ -45,12 +48,13 @@ export function LoanSimulator() {
     if (!result) return;
     setSaving(true);
     try {
-      await loanService.create({
+      const createdLoan = await loanService.create({
         userId: "user-123",
         amount: result.amount,
         term: result.term,
         loanType: Number(values.loanType) as LoanType,
       });
+      dispatch(loanUpdated(createdLoan));
       router.push("/loans");
     } catch (error) {
       setApiError(error instanceof Error ? error.message : "No se pudo registrar");
