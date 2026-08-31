@@ -1,6 +1,20 @@
 @SGIP.Api_HostAddress = http://localhost:5190
 
-GET {{SGIP.Api_HostAddress}}/weatherforecast/
+GET {{SGIP.Api_HostAddress}}/api/loans
 Accept: application/json
 
 ###
+
+POST {{SGIP.Api_HostAddress}}/api/loans/simulate
+Content-Type: application/json
+
+{
+  "amount": 5000,
+  "term": 12,
+  "loanType": 1
+}
+
+###
+
+GET {{SGIP.Api_HostAddress}}/api/transactions
+Accept: application/json
