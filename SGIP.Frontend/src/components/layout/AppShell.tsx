@@ -92,7 +92,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             ☰
           </button>
           <div className="min-w-0">
-            <p className="text-[10px] font-extrabold tracking-[0.16em] text-slate-400">SGIP</p>
             <h1 className="truncate text-base font-extrabold text-slate-800">
               {getPageTitle(pathname)}
             </h1>
