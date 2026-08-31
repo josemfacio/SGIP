@@ -9,13 +9,8 @@ import { formatCurrency, formatDate } from "@/lib/formatters";
 import { useLoans } from "../hooks/useLoans";
 import { useUsers } from "@/features/users/context/UserProvider";
 
-const filters: [number, string][] = [
-  [0, "Todos"],
-  [1, "Pendientes"],
-  [2, "Aprobados"],
-  [3, "Rechazados"],
-  [4, "Activos"],
-];
+const filterClass =
+  "mt-2 w-full rounded-md border border-slate-200 bg-white px-2 py-1.5 text-[11px] font-normal tracking-normal text-slate-600 outline-none focus:border-blue-500";
 interface LoanListProps {
   compact?: boolean;
   statusFilter?: number[];
@@ -26,70 +21,151 @@ export function LoanList({ compact = false, statusFilter }: LoanListProps) {
   const { users } = useUsers();
   const [status, setStatus] = useState(0);
   const [query, setQuery] = useState("");
+  const [minimumAmount, setMinimumAmount] = useState("");
+  const [loanType, setLoanType] = useState(0);
+  const [term, setTerm] = useState(0);
+  const [minimumPayment, setMinimumPayment] = useState("");
+  const [createdDate, setCreatedDate] = useState("");
   const userNames = new Map(users.map((user) => [user.userId, user.name]));
   const normalizedQuery = query.trim().toLocaleLowerCase();
   const loans = items.filter((item) => {
     const matchesExternalStatus = !statusFilter || statusFilter.includes(item.status);
     const matchesStatus = !status || item.status === status;
+    const matchesAmount = !minimumAmount || item.amount >= Number(minimumAmount);
+    const matchesType = !loanType || item.loanType === loanType;
+    const matchesTerm = !term || item.term === term;
+    const matchesPayment = !minimumPayment || item.monthlyPayment >= Number(minimumPayment);
+    const matchesDate = !createdDate || item.createdAt.slice(0, 10) === createdDate;
     const userName = userNames.get(item.userId) ?? item.userId;
     const matchesQuery =
       !normalizedQuery ||
       userName.toLocaleLowerCase().includes(normalizedQuery) ||
       item.userId.toLocaleLowerCase().includes(normalizedQuery);
-    return matchesExternalStatus && matchesStatus && matchesQuery;
+    return (
+      matchesExternalStatus &&
+      matchesStatus &&
+      matchesAmount &&
+      matchesType &&
+      matchesTerm &&
+      matchesPayment &&
+      matchesDate &&
+      matchesQuery
+    );
   });
+  const hasFilters = Boolean(
+    query || minimumAmount || loanType || term || minimumPayment || status || createdDate,
+  );
+  const clearFilters = () => {
+    setQuery("");
+    setMinimumAmount("");
+    setLoanType(0);
+    setTerm(0);
+    setMinimumPayment("");
+    setStatus(0);
+    setCreatedDate("");
+  };
   if (error) return <ErrorMessage message={error} onRetry={() => void refresh()} />;
   return (
     <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-      {!compact && (
-        <div className="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex min-w-0 flex-1 flex-col gap-3 xl:flex-row xl:items-center">
-            <input
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 xl:max-w-64"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Filtrar por usuario..."
-              aria-label="Filtrar préstamos por usuario"
-            />
-            <div className="flex max-w-full gap-1 overflow-x-auto">
-              {filters.map(([value, label]) => (
-                <button
-                  key={value}
-                  className={`rounded-lg px-3 py-2 text-[11px] whitespace-nowrap transition ${status === value ? "bg-blue-50 font-bold text-blue-700" : "text-slate-500 hover:bg-slate-50"}`}
-                  onClick={() => setStatus(value)}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-            {(query || status) && (
-              <button
-                type="button"
-                className="rounded-lg px-3 py-2 text-xs font-bold text-blue-600 hover:bg-blue-50"
-                onClick={() => {
-                  setQuery("");
-                  setStatus(0);
-                }}
-              >
-                Limpiar
-              </button>
-            )}
-          </div>
-          <span className="text-[11px] text-slate-400">{loans.length} resultados</span>
-        </div>
-      )}
       <div className="overflow-x-auto">
         <table className="w-full min-w-[800px] border-collapse text-left">
           <thead>
             <tr>
-              {["SOLICITANTE", "MONTO", "TIPO", "PLAZO", "CUOTA", "ESTADO", "FECHA"].map((head) => (
-                <th
-                  key={head}
-                  className="border-b border-slate-200 bg-slate-50 px-5 py-3 text-[10px] font-extrabold tracking-wider text-slate-400"
-                >
-                  {head}
-                </th>
-              ))}
+              <th className="border-b border-slate-200 bg-slate-50 px-5 py-3 text-[10px] font-extrabold tracking-wider text-slate-400">
+                SOLICITANTE
+                {!compact && (
+                  <input
+                    className={filterClass}
+                    value={query}
+                    onChange={(event) => setQuery(event.target.value)}
+                    placeholder="Nombre o código"
+                  />
+                )}
+              </th>
+              <th className="border-b border-slate-200 bg-slate-50 px-5 py-3 text-[10px] font-extrabold tracking-wider text-slate-400">
+                MONTO
+                {!compact && (
+                  <input
+                    className={filterClass}
+                    type="number"
+                    min="0"
+                    value={minimumAmount}
+                    onChange={(event) => setMinimumAmount(event.target.value)}
+                    placeholder="Mínimo"
+                  />
+                )}
+              </th>
+              <th className="border-b border-slate-200 bg-slate-50 px-5 py-3 text-[10px] font-extrabold tracking-wider text-slate-400">
+                TIPO
+                {!compact && (
+                  <select
+                    className={filterClass}
+                    value={loanType}
+                    onChange={(event) => setLoanType(Number(event.target.value))}
+                  >
+                    <option value="0">Todos</option>
+                    <option value="1">Cuota fija</option>
+                    <option value="2">Decreciente</option>
+                  </select>
+                )}
+              </th>
+              <th className="border-b border-slate-200 bg-slate-50 px-5 py-3 text-[10px] font-extrabold tracking-wider text-slate-400">
+                PLAZO
+                {!compact && (
+                  <select
+                    className={filterClass}
+                    value={term}
+                    onChange={(event) => setTerm(Number(event.target.value))}
+                  >
+                    <option value="0">Todos</option>
+                    {[6, 12, 18, 24, 36, 48, 60].map((value) => (
+                      <option key={value} value={value}>
+                        {value} meses
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </th>
+              <th className="border-b border-slate-200 bg-slate-50 px-5 py-3 text-[10px] font-extrabold tracking-wider text-slate-400">
+                CUOTA
+                {!compact && (
+                  <input
+                    className={filterClass}
+                    type="number"
+                    min="0"
+                    value={minimumPayment}
+                    onChange={(event) => setMinimumPayment(event.target.value)}
+                    placeholder="Mínima"
+                  />
+                )}
+              </th>
+              <th className="border-b border-slate-200 bg-slate-50 px-5 py-3 text-[10px] font-extrabold tracking-wider text-slate-400">
+                ESTADO
+                {!compact && (
+                  <select
+                    className={filterClass}
+                    value={status}
+                    onChange={(event) => setStatus(Number(event.target.value))}
+                  >
+                    <option value="0">Todos</option>
+                    <option value="1">Pendiente</option>
+                    <option value="2">Aprobado</option>
+                    <option value="3">Rechazado</option>
+                    <option value="4">Activo</option>
+                  </select>
+                )}
+              </th>
+              <th className="border-b border-slate-200 bg-slate-50 px-5 py-3 text-[10px] font-extrabold tracking-wider text-slate-400">
+                FECHA
+                {!compact && (
+                  <input
+                    className={filterClass}
+                    type="date"
+                    value={createdDate}
+                    onChange={(event) => setCreatedDate(event.target.value)}
+                  />
+                )}
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -137,6 +213,20 @@ export function LoanList({ compact = false, statusFilter }: LoanListProps) {
         {loading && <LoadingState />}
         {!loading && !loans.length && <EmptyState text="No hay préstamos para mostrar." />}
       </div>
+      {!compact && (
+        <div className="flex items-center justify-between border-t border-slate-100 px-5 py-3">
+          <span className="text-[11px] text-slate-400">{loans.length} resultados</span>
+          {hasFilters && (
+            <button
+              type="button"
+              className="text-xs font-bold text-blue-600 hover:text-blue-700"
+              onClick={clearFilters}
+            >
+              Limpiar filtros
+            </button>
+          )}
+        </div>
+      )}
     </section>
   );
 }
