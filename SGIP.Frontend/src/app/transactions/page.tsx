@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { PageHeading } from "@/components/ui/PageHeading";
 import { Modal } from "@/components/ui/Modal";
 import { TransactionForm } from "@/features/transactions/components/TransactionForm";
 import { TransactionList } from "@/features/transactions/components/TransactionList";
@@ -12,11 +11,7 @@ export default function TransactionsPage() {
   const dispatch = useAppDispatch();
   return (
     <>
-      <PageHeading
-        eyebrow="MOVIMIENTOS"
-        title="Transacciones"
-        description="Registra y consulta todos los movimientos financieros."
-      >
+      <div className="mb-4 flex justify-end">
         <button
           type="button"
           className="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-blue-700 sm:w-auto"
@@ -24,7 +19,7 @@ export default function TransactionsPage() {
         >
           + Nueva transacción
         </button>
-      </PageHeading>
+      </div>
       <TransactionList />
       {open && (
         <Modal title="Nueva transacción" onClose={() => setOpen(false)}>
