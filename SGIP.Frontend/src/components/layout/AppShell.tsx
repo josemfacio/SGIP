@@ -3,16 +3,19 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { useUsers } from "@/features/users/context/UserProvider";
 
 const links = [
   { href: "/", label: "Resumen", icon: "⌂" },
   { href: "/loans/simulate", label: "Simulador", icon: "◫" },
   { href: "/loans", label: "Préstamos", icon: "▤" },
   { href: "/transactions", label: "Transacciones", icon: "⇄" },
+  { href: "/users", label: "Usuarios", icon: "U" },
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { activeUser } = useUsers();
   const [open, setOpen] = useState(false);
   return (
     <main className="flex min-h-screen bg-slate-50 text-slate-800">
@@ -51,11 +54,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
         <div className="mt-5 flex items-center gap-2 border-t border-blue-900 pt-4">
           <span className="grid size-9 place-items-center rounded-full bg-blue-100 text-xs font-extrabold text-blue-700">
-            JA
+            {activeUser?.name.slice(0, 2).toUpperCase() ?? "--"}
           </span>
           <span className="grid text-xs">
-            <strong>José Admin</strong>
-            <small className="text-slate-500">Administrador</small>
+            <strong>{activeUser?.name ?? "Sin usuario"}</strong>
+            <small className="text-slate-500">Usuario activo</small>
           </span>
           <b className="ml-auto text-slate-500">⋮</b>
         </div>
@@ -88,7 +91,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
           <div className="ml-auto flex items-center gap-5">
             <span className="grid size-9 place-items-center rounded-full bg-blue-100 text-xs font-extrabold text-blue-700">
-              Facio
+              {activeUser?.name.slice(0, 8) ?? "Usuario"}
             </span>
           </div>
         </header>

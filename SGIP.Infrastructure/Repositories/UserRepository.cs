@@ -20,4 +20,29 @@ public class UserRepository : IUserRepository
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.UserId == userId);
     }
+
+    public async Task<User?> GetByEmailAsync(string email)
+    {
+        return await _context.Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Email == email);
+    }
+
+    public async Task<IEnumerable<User>> GetAllAsync()
+    {
+        return await _context.Users
+            .AsNoTracking()
+            .OrderBy(x => x.Name)
+            .ToListAsync();
+    }
+
+    public async Task AddAsync(User user)
+    {
+        await _context.Users.AddAsync(user);
+    }
+
+    public async Task SaveChangesAsync()
+    {
+        await _context.SaveChangesAsync();
+    }
 }

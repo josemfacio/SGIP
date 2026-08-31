@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { formatCurrency, formatPercent } from "@/lib/formatters";
 import { useAppDispatch } from "@/store/hooks";
+import { useUsers } from "@/features/users/context/UserProvider";
 import { loanSchema, type LoanFormValues } from "../schemas/loan.schema";
 import { loanService } from "../services/loan.service";
 import { loanUpdated } from "../store/loan.slice";
@@ -17,6 +18,7 @@ const inputClass =
 export function LoanSimulator() {
   const router = useRouter();
   const dispatch = useAppDispatch();
+  const { users, activeUser, selectUser } = useUsers();
   const [result, setResult] = useState<LoanSimulation | null>(null);
   const [apiError, setApiError] = useState("");
   const [saving, setSaving] = useState(false);
@@ -45,11 +47,14 @@ export function LoanSimulator() {
     return () => clearTimeout(timer);
   }, [calculate, handleSubmit, values.amount, values.loanType, values.term]);
   const requestLoan = async () => {
-    if (!result) return;
+    if (!result || !activeUser) {
+      setApiError("Primero crea o selecciona un usuario.");
+      return;
+    }
     setSaving(true);
     try {
       const createdLoan = await loanService.create({
-        userId: "user-123",
+        userId: activeUser.userId,
         amount: result.amount,
         term: result.term,
         loanType: Number(values.loanType) as LoanType,
@@ -110,6 +115,23 @@ export function LoanSimulator() {
         {apiError && (
           <p className="mt-4 rounded-lg bg-red-50 p-3 text-xs text-red-700">{apiError}</p>
         )}
+        <label className="mt-5 grid gap-2 text-xs font-bold text-slate-600">
+          Usuario solicitante
+          <select
+            className={inputClass}
+            value={activeUser?.userId ?? ""}
+            onChange={(event) => selectUser(event.target.value)}
+          >
+            <option value="" disabled>
+              Selecciona un usuario
+            </option>
+            {users.map((user) => (
+              <option key={user.userId} value={user.userId}>
+                {user.name}
+              </option>
+            ))}
+          </select>
+        </label>
         <button
           className="mt-6 w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-blue-700 disabled:cursor-wait disabled:opacity-60"
           disabled={isSubmitting}

@@ -54,6 +54,7 @@ builder.Services.AddScoped<FinancialCalculator>();
 builder.Services.AddScoped<LoanValidator>();
 builder.Services.AddScoped<ILoanService, LoanService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
 
